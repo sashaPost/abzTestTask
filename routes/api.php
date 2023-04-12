@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TokenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->group(function () {
+    Route::get('/token', [TokenController::class, 'generateToken'])->name('token');
+    Route::get('/users', function () {
+        return 1;
+    })->name('users.get');
+    Route::post('/users', function () {
+        return 1;
+    })->name('users.post');
+    Route::get('/users/{id}', function () {
+        return 1;
+    })->name('users.id');
+    Route::get('/positions', function () {
+        return 1;
+    })->name('positions');
 });
