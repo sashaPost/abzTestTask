@@ -23,16 +23,9 @@ class TokenController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        $headers = [
+        return new JsonResponse([
             'success' => true,
-            'message' => 'The token is valid for 40 minutes and can be used for only one request.'
-        ];
-
-        return new JsonResponse(
-            $newToken,
-            200,
-            $headers,
-            JSON_PRETTY_PRINT
-        );
+            'token' => $newToken->token,
+        ]);
     }
 }
