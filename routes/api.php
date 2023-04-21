@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TokenController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,17 +22,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 Route::prefix('v1')->group(function () {
+
+    Route::get('/test', [UserController::class, 'usersGet']);
+
     Route::get('/token', [TokenController::class, 'generateToken'])->name('token');
-    Route::get('/users', function () {
-        return 1;
-    })->name('users.get');
+    Route::get('/users', [UserController::class, 'test'])->name('users.get');
     Route::post('/users', function () {
         return 1;
     })->name('users.post');
     Route::get('/users/{id}', function () {
         return 1;
     })->name('users.id');
-    Route::get('/positions', function () {
-        return 1;
-    })->name('positions');
+    Route::get('/positions', [UserController::class, 'positions'])->name('positions');
 });
