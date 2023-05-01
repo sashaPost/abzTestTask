@@ -2,19 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use Carbon\Carbon;
 
+use App\Models\User;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    //
-    public function __construct (Request $request) {
-
+    private $protocol;
+    private $domain;
+    private $path;
+    private $baseUrl;
+    private $queryPage;
+    private $queryCount;
+    
+    public function __construct (
+        
+    ) {
+        $this->protocol = env('LINK_PROTOCOL');
+        $this->domain = env('LINK_DOMAIN');
+        $this->path = env('LINK_PATH');
+        $this->baseUrl = $this->protocol . $this->domain . $this->path;
+        $this->queryPage = env('LINK_QUERY_PAGE');
+        $this->queryCount = env('LINK_QUERY_COUNT');
     }
 
+    public function test2 (Request $request) {
+        // check:
+        // $user = User::latest()->first();
+        // $position = $user->position;
+        // return $user->position->name;
+
+        $users = User::select(
+            'id',
+            'name',
+            'email',
+            'phone',
+            'position_id',
+            'photo',
+        )->get();
+
+        foreach ($users as $user) {
+            $updUser = User::where('id', $user->id)->first();
+            $updUserPosition = $updUser->position->name;
+            $user['position'] = $updUserPosition;
+
+            $registered = $user->created_at;
+            $dateTime = Carbon::parse($registered);
+            $user['registration_timestamp'] = $dateTime->timestamp;
+        }
+
+        return $users;
+    }
     public function test (Request $request): JsonResponse {
 
         // $users = User::all();
@@ -37,7 +78,8 @@ class UserController extends Controller
             $updUserPosition = $updUser->position->name;
             // $position = Position::where('id', $user->position_id)->first();
             $position = $updUser->position;
-            $user['position'] = $position->name;
+            // $user['position'] = $position->name;
+            $user['position'] = $updUserPosition;
             // $user->position();
             // User::find($user->id)->position;
             // $key = $value;
@@ -58,50 +100,66 @@ class UserController extends Controller
         ]);
     }
 
-    // private function prevLink () {
-    //     return null;
-    // }
 
+
+    // methods below works fine; 
+    // should be refactored later;
     private function links ($page, $count, $totalPages) {
-        // - break url to components;
-        // - get as 'env' variables;
         if ($page <= 1) {
-            return [
-                'next_url' => 'http://127.0.0.1:8000/api/v1/test?page=' . ($page + 1) . '&count=' . $count,
+            $links = [
+                'next_url' => $this->baseUrl . $this->queryPage . ($page + 1) . $this->queryCount . $count,
                 'prev_url' => null,
             ];
+            return $links;
         } elseif ($page == $totalPages) {
             return [
                 'next_url' => null,
-                'prev_url' => 'http://127.0.0.1:8000/api/v1/test?page=' . ($page - 1) . '&count=' . $count,            
+                'prev_url' => $this->baseUrl . $this->queryPage . ($page - 1) . $this->queryCount . $count,            
             ];
         } else {
             return [
-                'next_url' => 'http://127.0.0.1:8000/api/v1/test?page=' . ($page + 1) . '&count=' . $count,
-                'prev_url' => 'http://127.0.0.1:8000/api/v1/test?page=' . ($page - 1) . '&count=' . $count,
+                'next_url' => $this->baseUrl . $this->queryPage . ($page + 1) . $this->queryCount . $count,
+                'prev_url' => $this->baseUrl . $this->queryPage . ($page - 1) . $this->queryCount . $count,
             ];
         }
     }
 
     public function usersGet (Request $request) {
 
+        // I have to add 'request validation', I guess
+
         $page = $request->query('page');
         $count = $request->query('count');
         $offset = ($page - 1) * $count;
+
+        $totalUsers = User::count();
+        $totalPages = ceil($totalUsers / $count);
+
+        if ($page > $totalPages) {
+            return new JsonResponse([
+                "success" => false,
+                "message" => "Page not found",
+            ], 404);
+        }
 
         $users = User::skip($offset)->take($count)->select(
             'id',
             'name',
             'email',
-            // 'position',
+            'phone',
             'position_id',
-            // eto k Dronu:
-            'created_at',  // should be displayed as 'registration_timestamp'
             'photo',
         )->get(); 
-        $totalUsers = User::count();
+        foreach ($users as $user) {
+            $updUser = User::where('id', $user->id)->first();
+            $updUserPosition = $updUser->position->name;
+            $user['position'] = $updUserPosition;
 
-        $totalPages = ceil($totalUsers / $count);
+            $registered = $user->created_at;
+            $dateTime = Carbon::parse($registered);
+            $user['registration_timestamp'] = $dateTime->timestamp;
+        }
+
 
         $navLinks = $this->links($page, $count, $totalPages);
 

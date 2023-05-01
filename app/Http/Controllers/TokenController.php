@@ -17,24 +17,6 @@ class TokenController extends Controller
     }
 
     public function generateToken (Request $request): JsonResponse {
-        // dumb tests:
-        // dump($newToken);
-
-        // echo('hashed token');
-        // $str = 'hashed token';
-        // $response = new Response();
-        // $response->header('str', $str);
-        // dump($response);
-
-        // null:
-        // dump($request);
-        // $hashedToken = Hash::make($request);
-        // dump($hashedToken);
-        
-        // $test = Hash::make('');
-        // dump(Hash::info($hashedToken));
-        // $request->newPassword = $test;
-
         $token = bin2hex(random_bytes(137));
         $expiresAt = Carbon::now()->addMinutes(40);
 
@@ -46,7 +28,8 @@ class TokenController extends Controller
         return new JsonResponse([
             'success' => true,
             'token' => $newToken->token,
-            // 'hashed token' => $hashedToken,  // hashed token from null
+            'expires_at' => $newToken->expires_at,
+            'used' => $newToken->used,
         ]);
     }
 

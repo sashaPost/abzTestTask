@@ -52,7 +52,6 @@ class User extends Authenticatable
 
     public function position() 
     {
-        // $this->belongsTo(Position::class, 'users');
-        $this->belongsTo(Position::class);
+        return $this->belongsTo(Position::class);
     }
 }

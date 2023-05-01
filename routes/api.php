@@ -23,13 +23,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 Route::prefix('v1')->group(function () {
 
-    Route::get('/test', [UserController::class, 'usersGet']);
+    Route::get('/test2', [UserController::class, 'test2']);
+    Route::get('/test', [UserController::class, 'test']);
 
+    Route::get('/users', [UserController::class, 'usersGet'])->name('users.get');
     Route::get('/token', [TokenController::class, 'generateToken'])->name('token');
-    Route::get('/users', [UserController::class, 'test'])->name('users.get');
+    
     Route::post('/users', function () {
         return 1;
-    })->name('users.post');
+    })->middleware('verify.token')->name('users.post');
     Route::get('/users/{id}', function () {
         return 1;
     })->name('users.id');
