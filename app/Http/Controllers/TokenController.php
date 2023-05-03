@@ -16,6 +16,7 @@ class TokenController extends Controller
 
     }
 
+    // it renders the wrong time (three hours earlier), debugger shows the correct value;
     public function generateToken (Request $request): JsonResponse {
         $token = bin2hex(random_bytes(137));
         $expiresAt = Carbon::now()->addMinutes(40);

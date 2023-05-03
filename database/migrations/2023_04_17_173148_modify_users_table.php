@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->string('name', 60)->unique()->change();
-            $table->string('phone')->nullable(true)->unique();
+            $table->string('name', 60)->change();
+            $table->string('password')->nullable(true)->default(null)->change();
+            $table->string('phone')->unique();
             $table->unsignedBigInteger('position_id');
-            $table->string('photo')->nullable(true)->default(null);  // "/images/users/5b977ba1245cc29.jpeg"
+            $table->string('photo');  // "/images/users/5b977ba1245cc29.jpeg"
             $table->foreign('position_id')->references('id')->on('positions')->onDelete('cascade');
         });
     }

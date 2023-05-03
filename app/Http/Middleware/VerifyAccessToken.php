@@ -25,6 +25,7 @@ class VerifyAccessToken
         $sourceToken = $sourceRecord->token;
         $expires = $sourceRecord->expires_at;    // "2023-05-01 14:24:58"
         $used = $sourceRecord->used;
+        $check = is_null($used);
 
         // 'has been used' test:
         // $sourceRecord->used = 1;
@@ -38,12 +39,16 @@ class VerifyAccessToken
                 "success" => false,
                 "message" => 'Invalid access token',
             ], 401);
-        } elseif ($now > $expires) {
+        } 
+        
+        if ($now > $expires) {
             return new JsonResponse([
                 "success" => false,
                 "message" => "The token expired.",
             ], 401);
-        } elseif (! is_null($used)) {
+        } 
+        
+        if ($used == 1) {
             return new JsonResponse([
                 "success" => false,
                 "message" => 'The token has already been used before.',

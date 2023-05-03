@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserPostRequest;
 use Carbon\Carbon;
 
 use App\Models\User;
+use App\Models\Token;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +29,34 @@ class UserController extends Controller
         $this->baseUrl = $this->protocol . $this->domain . $this->path;
         $this->queryPage = env('LINK_QUERY_PAGE');
         $this->queryCount = env('LINK_QUERY_COUNT');
+    }
+
+    // start with the database modification:
+    // delete 'password' field from 'users'
+    public function test3 (UserPostRequest $request) {
+        // $check = $request;
+        // $name = $request['name'];
+        // echo true;
+        $passwdTest = $request['password'];  // is 'null' as expected;
+
+        $newUser = User::create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            // 'password' => $request['password'],  // remove it from the database table
+            'phone' => $request['phone'],
+            'position_id' => $request['position_id'],
+            'photo' => $request['photo'],
+        ]);
+
+        $token = Token::where('token', $request->header('Token'))->first();
+        $token->used = 1;
+        $token->save();
+
+        return new JsonResponse([
+            "success" => true,
+            "user_id" => $newUser->id,
+            "message" => "New user successfully registered",
+        ], 200);
     }
 
     public function test2 (Request $request) {

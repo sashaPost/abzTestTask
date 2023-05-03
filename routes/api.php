@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 Route::prefix('v1')->group(function () {
 
+    Route::post('/test3', [UserController::class, 'test3'])->middleware('verify.token');
     Route::get('/test2', [UserController::class, 'test2']);
     Route::get('/test', [UserController::class, 'test']);
 
